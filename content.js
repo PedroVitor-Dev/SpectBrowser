@@ -1,35 +1,41 @@
-let currentState = null;
-
-// ── Receber mensagens do popup ──
-chrome.runtime.onMessage.addListener((message) => {
-  if (message.type === 'UPDATE_STATE') {
-    currentState = message.state;
-    applyState();
+// ── Inicializa lendo o storage ──
+chrome.storage.local.get(null, (saved) => {
+  if (saved && Object.keys(saved).length > 0) {
+    applyState(saved);
   }
 });
 
-// ── Carregar estado ao iniciar ──
-chrome.storage.local.get(null, (saved) => {
-  currentState = saved;
-  applyState();
+// ── Escuta mudanças no storage em tempo real ──
+chrome.storage.onChanged.addListener((changes, area) => {
+  if (area !== 'local') return;
+  chrome.storage.local.get(null, (saved) => {
+    applyState(saved);
+  });
 });
 
-// ── Aplicar estado ──
-function applyState() {
-  if (!currentState) return;
+// ── Recebe mensagens do popup (fallback) ──
+chrome.runtime.onMessage.addListener((message) => {
+  if (message.type === 'UPDATE_STATE') {
+    applyState(message.state);
+  }
+});
 
-  const enabled = currentState.masterEnabled;
+// ── Aplica estado ──
+function applyState(s) {
+  if (!s) return;
 
-  applyAutoplay(enabled && currentState.blockAutoplay);
-  applyAnimations(enabled && currentState.removeAnimations);
-  applyPopups(enabled && currentState.removePopups);
-  applyTimers(enabled && currentState.hideTimers);
-  applyFocusMode(enabled && currentState.focusMode);
-  applyReadingMode(enabled && currentState.readingMode);
+  const enabled = s.masterEnabled;
+
+  applyAutoplay(enabled && s.blockAutoplay);
+  applyAnimations(enabled && s.removeAnimations);
+  applyPopups(enabled && s.removePopups);
+  applyTimers(enabled && s.hideTimers);
+  applyFocusMode(enabled && s.focusMode);
+  applyReadingMode(enabled && s.readingMode);
   applyVisualFilters(
-    enabled ? currentState.brightness : 100,
-    enabled ? currentState.saturation : 100,
-    enabled ? currentState.contrast : 100
+    enabled ? (s.brightness ?? 100) : 100,
+    enabled ? (s.saturation ?? 100) : 100,
+    enabled ? (s.contrast  ?? 100) : 100
   );
 }
 
@@ -39,11 +45,9 @@ function applyAutoplay(active) {
     if (active) {
       el.pause();
       el.autoplay = false;
-      el.setAttribute('data-spect-muted', 'true');
     }
   });
 
-  // Observar novos elementos adicionados ao DOM
   if (active) {
     if (!window._spectAutoplayObserver) {
       window._spectAutoplayObserver = new MutationObserver((mutations) => {
@@ -151,7 +155,6 @@ function hidePopupElements() {
     }
   });
 
-  // Remove body lock de scroll
   document.body.style.removeProperty('overflow');
   document.documentElement.style.removeProperty('overflow');
 }
@@ -199,13 +202,7 @@ function applyFocusMode(active) {
         [role="complementary"] {
           opacity: 0.15 !important;
           filter: grayscale(100%) !important;
-          transition: opacity 0.3s ease !important;
           pointer-events: none !important;
-        }
-
-        aside:hover,
-        [class*="sidebar"]:hover {
-          opacity: 0.5 !important;
         }
       `;
       document.head.appendChild(style);
@@ -224,7 +221,8 @@ function applyVisualFilters(brightness, saturation, contrast) {
   } else {
     htmlEl.style.filter = `brightness(${brightness}%) saturate(${saturation}%) contrast(${contrast}%)`;
   }
-  
+}
+
 // ── 7. Modo Leitura ──
 function applyReadingMode(active) {
   const existing = document.getElementById('spect-reading-overlay');
@@ -237,7 +235,6 @@ function applyReadingMode(active) {
 
   if (existing) return;
 
-  // Tenta encontrar o conteúdo principal
   const candidates = [
     'article',
     '[role="main"]',
@@ -259,7 +256,6 @@ function applyReadingMode(active) {
     }
   }
 
-  // Fallback: maior bloco de texto da página
   if (!mainEl) {
     const blocks = [...document.querySelectorAll('div, section')];
     mainEl = blocks.reduce((best, el) => {
@@ -269,21 +265,17 @@ function applyReadingMode(active) {
 
   if (!mainEl) return;
 
-  // Clona o conteúdo
   const clone = mainEl.cloneNode(true);
 
-  // Remove elementos indesejados do clone
   clone.querySelectorAll(
     'script, style, iframe, [class*="ad"], [class*="banner"], [class*="popup"], nav, header, footer, [class*="sidebar"], [class*="related"], [class*="share"], [class*="social"], [class*="comment"]'
   ).forEach(el => el.remove());
 
-  // Overlay
   const overlay = document.createElement('div');
   overlay.id = 'spect-reading-overlay';
   overlay.appendChild(clone);
   document.body.appendChild(overlay);
 
-  // Botão de fechar
   const closeBtn = document.createElement('button');
   closeBtn.id = 'spect-reading-close';
   closeBtn.textContent = '✕ fechar leitura';
@@ -293,7 +285,6 @@ function applyReadingMode(active) {
   });
   overlay.appendChild(closeBtn);
 
-  // Estilos
   const style = document.createElement('style');
   style.id = 'spect-reading-style';
   style.textContent = `
@@ -378,6 +369,4 @@ function applyReadingMode(active) {
     }
   `;
   document.head.appendChild(style);
-}
-
 }
