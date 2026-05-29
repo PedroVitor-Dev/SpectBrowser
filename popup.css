@@ -271,8 +271,6 @@ body {
   gap: 13px;
 }
 
-.slider-control {}
-
 .slider-header {
   display: flex;
   align-items: center;
