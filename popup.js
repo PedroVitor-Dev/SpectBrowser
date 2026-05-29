@@ -1,4 +1,3 @@
-// Estado padrão
 const DEFAULT_STATE = {
   masterEnabled: false,
   blockAutoplay: false,
@@ -6,14 +5,13 @@ const DEFAULT_STATE = {
   removePopups: false,
   hideTimers: false,
   focusMode: false,
-  readingMode: false,      
+  readingMode: false,
   brightness: 100,
   saturation: 100,
   contrast: 100,
   activeMode: null,
 };
 
-// Definição dos modos rápidos
 const MODES = {
   neuro: {
     blockAutoplay: true,
@@ -21,6 +19,7 @@ const MODES = {
     removePopups: true,
     hideTimers: true,
     focusMode: false,
+    readingMode: false,
     brightness: 95,
     saturation: 70,
     contrast: 95,
@@ -31,6 +30,7 @@ const MODES = {
     removePopups: true,
     hideTimers: false,
     focusMode: true,
+    readingMode: false,
     brightness: 100,
     saturation: 100,
     contrast: 100,
@@ -41,9 +41,10 @@ const MODES = {
     removePopups: true,
     hideTimers: false,
     focusMode: false,
-    brightness: 90,
-    saturation: 50,
-    contrast: 90,
+    readingMode: true,
+    brightness: 100,
+    saturation: 100,
+    contrast: 100,
   },
   safe: {
     blockAutoplay: true,
@@ -51,6 +52,7 @@ const MODES = {
     removePopups: true,
     hideTimers: true,
     focusMode: false,
+    readingMode: false,
     brightness: 85,
     saturation: 60,
     contrast: 90,
@@ -59,7 +61,6 @@ const MODES = {
 
 let state = { ...DEFAULT_STATE };
 
-// ── Carregar estado salvo ──
 async function loadState() {
   return new Promise((resolve) => {
     chrome.storage.local.get(DEFAULT_STATE, (saved) => {
@@ -69,12 +70,10 @@ async function loadState() {
   });
 }
 
-// ── Salvar estado ──
 function saveState() {
   chrome.storage.local.set(state);
 }
 
-// ── Aplicar estado na UI ──
 function applyToUI() {
   document.getElementById('masterToggle').checked = state.masterEnabled;
 
@@ -88,7 +87,10 @@ function applyToUI() {
   setSlider('saturation', state.saturation);
   setSlider('contrast', state.contrast);
 
-  // Modo leitura
+  document.querySelectorAll('.mode-btn').forEach((btn) => {
+    btn.classList.toggle('active', btn.dataset.mode === state.activeMode);
+  });
+
   const readingBtn = document.getElementById('readingModeBtn');
   const readingStatus = document.getElementById('readingStatus');
   if (state.readingMode) {
@@ -98,11 +100,6 @@ function applyToUI() {
     readingBtn.classList.remove('active');
     readingStatus.textContent = 'off';
   }
-
-  // Modos ativos
-  document.querySelectorAll('.mode-btn').forEach((btn) => {
-    btn.classList.toggle('active', btn.dataset.mode === state.activeMode);
-  });
 }
 
 function setSlider(id, value) {
@@ -112,52 +109,34 @@ function setSlider(id, value) {
   if (val) val.textContent = value + '%';
 }
 
-// ── Enviar estado para a aba ativa ──
 function sendToTab() {
   chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
     if (!tabs[0]?.id) return;
     chrome.tabs.sendMessage(tabs[0].id, {
       type: 'UPDATE_STATE',
       state,
-    }).catch(() => {
-      // Tab pode não ter o content script ainda — ignora silenciosamente
-    });
+    }).catch(() => {});
   });
 }
 
-// ── Listeners ──
 function setupListeners() {
-  // Master toggle
   document.getElementById('masterToggle').addEventListener('change', (e) => {
     state.masterEnabled = e.target.checked;
     saveState();
     sendToTab();
-
-    // Botão modo leitura
-  document.getElementById('readingModeBtn').addEventListener('click', () => {
-    state.readingMode = !state.readingMode;
-    if (state.readingMode && !state.masterEnabled) {
-      state.masterEnabled = true;
-    }
-    saveState();
-    applyToUI();
-    sendToTab();
-  });
   });
 
-  // Toggles individuais
   const toggleIds = ['blockAutoplay', 'removeAnimations', 'removePopups', 'hideTimers', 'focusMode'];
   toggleIds.forEach((id) => {
     document.getElementById(id).addEventListener('change', (e) => {
       state[id] = e.target.checked;
-      state.activeMode = null; // deseleciona modo rápido
+      state.activeMode = null;
       document.querySelectorAll('.mode-btn').forEach((b) => b.classList.remove('active'));
       saveState();
       sendToTab();
     });
   });
 
-  // Sliders visuais
   ['brightness', 'saturation', 'contrast'].forEach((id) => {
     document.getElementById(id).addEventListener('input', (e) => {
       state[id] = parseInt(e.target.value);
@@ -167,13 +146,11 @@ function setupListeners() {
     });
   });
 
-  // Modos rápidos
   document.querySelectorAll('.mode-btn').forEach((btn) => {
     btn.addEventListener('click', () => {
       const mode = btn.dataset.mode;
 
       if (state.activeMode === mode) {
-        // Desativar modo
         state.activeMode = null;
         Object.assign(state, {
           blockAutoplay: false,
@@ -181,17 +158,15 @@ function setupListeners() {
           removePopups: false,
           hideTimers: false,
           focusMode: false,
+          readingMode: false,
           brightness: 100,
           saturation: 100,
           contrast: 100,
         });
       } else {
-        // Ativar modo
         state.activeMode = mode;
         Object.assign(state, MODES[mode]);
-        if (!state.masterEnabled) {
-          state.masterEnabled = true;
-        }
+        state.masterEnabled = true;
       }
 
       saveState();
@@ -199,11 +174,20 @@ function setupListeners() {
       sendToTab();
     });
   });
+
+  document.getElementById('readingModeBtn').addEventListener('click', () => {
+    state.readingMode = !state.readingMode;
+    state.masterEnabled = true;
+    state.activeMode = null;
+    document.querySelectorAll('.mode-btn').forEach((b) => b.classList.remove('active'));
+    saveState();
+    applyToUI();
+    sendToTab();
+  });
 }
 
-// ── Init ──
-(async () => {
+document.addEventListener('DOMContentLoaded', async () => {
   await loadState();
   applyToUI();
   setupListeners();
-})();
+});
