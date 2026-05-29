@@ -352,3 +352,87 @@ input[type="range"].range-input::-webkit-slider-thumb:hover {
   border-radius: 50%;
   flex-shrink: 0;
 }
+
+/* ── MODO LEITURA ── */
+.reading-section {
+  padding: 12px 16px;
+  border-bottom: 1.5px solid var(--border);
+  background: var(--bg-card);
+}
+
+.reading-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 11px 14px;
+  background: var(--bg-header);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius);
+  cursor: pointer;
+  font-family: 'Nunito', sans-serif;
+  transition: var(--transition);
+  text-align: left;
+}
+
+.reading-btn:hover {
+  background: #CDE1F4;
+  border-color: var(--border-strong);
+}
+
+.reading-btn.active {
+  background: var(--accent);
+  border-color: var(--accent-dark);
+}
+
+.reading-btn-icon {
+  font-size: 22px;
+  flex-shrink: 0;
+}
+
+.reading-btn-text {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.reading-btn-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.reading-btn.active .reading-btn-name {
+  color: white;
+}
+
+.reading-btn-desc {
+  font-size: 11px;
+  color: var(--text-muted);
+  font-weight: 300;
+  margin-top: 1px;
+}
+
+.reading-btn.active .reading-btn-desc {
+  color: rgba(255,255,255,0.75);
+}
+
+.reading-btn-status {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  background: var(--bg);
+  border: 1.5px solid var(--border);
+  border-radius: 20px;
+  padding: 3px 10px;
+  flex-shrink: 0;
+  transition: var(--transition);
+}
+
+.reading-btn.active .reading-btn-status {
+  color: var(--accent);
+  background: white;
+  border-color: white;
+}

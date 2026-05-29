@@ -6,6 +6,7 @@ const DEFAULT_STATE = {
   removePopups: false,
   hideTimers: false,
   focusMode: false,
+  readingMode: false,      
   brightness: 100,
   saturation: 100,
   contrast: 100,
@@ -87,6 +88,17 @@ function applyToUI() {
   setSlider('saturation', state.saturation);
   setSlider('contrast', state.contrast);
 
+  // Modo leitura
+  const readingBtn = document.getElementById('readingModeBtn');
+  const readingStatus = document.getElementById('readingStatus');
+  if (state.readingMode) {
+    readingBtn.classList.add('active');
+    readingStatus.textContent = 'on';
+  } else {
+    readingBtn.classList.remove('active');
+    readingStatus.textContent = 'off';
+  }
+
   // Modos ativos
   document.querySelectorAll('.mode-btn').forEach((btn) => {
     btn.classList.toggle('active', btn.dataset.mode === state.activeMode);
@@ -120,6 +132,17 @@ function setupListeners() {
     state.masterEnabled = e.target.checked;
     saveState();
     sendToTab();
+
+    // Botão modo leitura
+  document.getElementById('readingModeBtn').addEventListener('click', () => {
+    state.readingMode = !state.readingMode;
+    if (state.readingMode && !state.masterEnabled) {
+      state.masterEnabled = true;
+    }
+    saveState();
+    applyToUI();
+    sendToTab();
+  });
   });
 
   // Toggles individuais

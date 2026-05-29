@@ -25,6 +25,7 @@ function applyState() {
   applyPopups(enabled && currentState.removePopups);
   applyTimers(enabled && currentState.hideTimers);
   applyFocusMode(enabled && currentState.focusMode);
+  applyReadingMode(enabled && currentState.readingMode);
   applyVisualFilters(
     enabled ? currentState.brightness : 100,
     enabled ? currentState.saturation : 100,
@@ -223,4 +224,160 @@ function applyVisualFilters(brightness, saturation, contrast) {
   } else {
     htmlEl.style.filter = `brightness(${brightness}%) saturate(${saturation}%) contrast(${contrast}%)`;
   }
+  
+// ── 7. Modo Leitura ──
+function applyReadingMode(active) {
+  const existing = document.getElementById('spect-reading-overlay');
+
+  if (!active) {
+    existing?.remove();
+    document.getElementById('spect-reading-style')?.remove();
+    return;
+  }
+
+  if (existing) return;
+
+  // Tenta encontrar o conteúdo principal
+  const candidates = [
+    'article',
+    '[role="main"]',
+    'main',
+    '.post-content',
+    '.article-body',
+    '.entry-content',
+    '.content',
+    '#content',
+    '.post',
+  ];
+
+  let mainEl = null;
+  for (const sel of candidates) {
+    const el = document.querySelector(sel);
+    if (el && el.innerText.trim().length > 200) {
+      mainEl = el;
+      break;
+    }
+  }
+
+  // Fallback: maior bloco de texto da página
+  if (!mainEl) {
+    const blocks = [...document.querySelectorAll('div, section')];
+    mainEl = blocks.reduce((best, el) => {
+      return el.innerText.length > (best?.innerText.length || 0) ? el : best;
+    }, null);
+  }
+
+  if (!mainEl) return;
+
+  // Clona o conteúdo
+  const clone = mainEl.cloneNode(true);
+
+  // Remove elementos indesejados do clone
+  clone.querySelectorAll(
+    'script, style, iframe, [class*="ad"], [class*="banner"], [class*="popup"], nav, header, footer, [class*="sidebar"], [class*="related"], [class*="share"], [class*="social"], [class*="comment"]'
+  ).forEach(el => el.remove());
+
+  // Overlay
+  const overlay = document.createElement('div');
+  overlay.id = 'spect-reading-overlay';
+  overlay.appendChild(clone);
+  document.body.appendChild(overlay);
+
+  // Botão de fechar
+  const closeBtn = document.createElement('button');
+  closeBtn.id = 'spect-reading-close';
+  closeBtn.textContent = '✕ fechar leitura';
+  closeBtn.addEventListener('click', () => {
+    chrome.storage.local.set({ readingMode: false });
+    applyReadingMode(false);
+  });
+  overlay.appendChild(closeBtn);
+
+  // Estilos
+  const style = document.createElement('style');
+  style.id = 'spect-reading-style';
+  style.textContent = `
+    #spect-reading-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 2147483647;
+      background: #F0F6FD;
+      overflow-y: auto;
+      padding: 60px 24px 80px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    #spect-reading-overlay > *:not(#spect-reading-close) {
+      width: 100%;
+      max-width: 680px;
+      font-family: 'Nunito', 'Segoe UI', sans-serif !important;
+      font-size: 18px !important;
+      line-height: 1.85 !important;
+      color: #1A3250 !important;
+      background: transparent !important;
+      border: none !important;
+      box-shadow: none !important;
+      padding: 0 !important;
+      margin: 0 auto !important;
+      float: none !important;
+    }
+
+    #spect-reading-overlay p {
+      margin-bottom: 1.4em !important;
+      font-size: 18px !important;
+      line-height: 1.85 !important;
+      color: #1A3250 !important;
+    }
+
+    #spect-reading-overlay h1,
+    #spect-reading-overlay h2,
+    #spect-reading-overlay h3 {
+      color: #0F2540 !important;
+      font-weight: 600 !important;
+      margin-bottom: 0.6em !important;
+      margin-top: 1.4em !important;
+      line-height: 1.3 !important;
+    }
+
+    #spect-reading-overlay h1 { font-size: 26px !important; }
+    #spect-reading-overlay h2 { font-size: 22px !important; }
+    #spect-reading-overlay h3 { font-size: 19px !important; }
+
+    #spect-reading-overlay img {
+      max-width: 100% !important;
+      border-radius: 10px !important;
+      margin: 1.2em 0 !important;
+    }
+
+    #spect-reading-overlay a {
+      color: #4A90C4 !important;
+      text-decoration: underline !important;
+    }
+
+    #spect-reading-close {
+      position: fixed;
+      top: 16px;
+      right: 20px;
+      background: #4A90C4;
+      color: white;
+      border: none;
+      border-radius: 20px;
+      padding: 7px 16px;
+      font-size: 13px;
+      font-family: 'Nunito', sans-serif;
+      font-weight: 600;
+      cursor: pointer;
+      z-index: 2147483648;
+      transition: background 0.15s;
+    }
+
+    #spect-reading-close:hover {
+      background: #3A78A8;
+    }
+  `;
+  document.head.appendChild(style);
+}
+
 }
