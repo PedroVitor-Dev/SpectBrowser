@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SpectBrowser</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Serif+Display&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="popup.css" />
+</head>
+<body>
+  <div class="app">
+
+    <!-- Header -->
+    <header class="header">
+      <div class="logo">
+        <div class="logo-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z" fill="var(--accent)"/>
+            <path d="M8 12c0-2.21 1.79-4 4-4s4 1.79 4 4-1.79 4-4 4-4-1.79-4-4z" fill="var(--bg)"/>
+          </svg>
+        </div>
+        <div class="logo-text">
+          <span class="logo-name">SpectBrowser</span>
+          <span class="logo-tagline">Navegue com calma</span>
+        </div>
+      </div>
+      <div class="master-toggle-wrap">
+        <label class="master-toggle" title="Ativar/desativar tudo">
+          <input type="checkbox" id="masterToggle" />
+          <span class="master-slider"></span>
+        </label>
+      </div>
+    </header>
+
+    <!-- Modos rápidos -->
+    <section class="quick-modes">
+      <p class="section-label">Modos rápidos</p>
+      <div class="modes-grid">
+        <button class="mode-btn" data-mode="neuro">
+          <span class="mode-icon">🧠</span>
+          <span class="mode-name">NeuroCalm</span>
+        </button>
+        <button class="mode-btn" data-mode="focus">
+          <span class="mode-icon">🎯</span>
+          <span class="mode-name">Focus Web</span>
+        </button>
+        <button class="mode-btn" data-mode="read">
+          <span class="mode-icon">📖</span>
+          <span class="mode-name">Leitura</span>
+        </button>
+        <button class="mode-btn" data-mode="safe">
+          <span class="mode-icon">🛡️</span>
+          <span class="mode-name">Safe Mode</span>
+        </button>
+      </div>
+    </section>
+
+    <!-- Controles individuais -->
+    <section class="controls">
+      <p class="section-label">Controles</p>
+
+      <div class="control-item">
+        <div class="control-info">
+          <span class="control-icon">🔇</span>
+          <div>
+            <span class="control-name">Bloquear Autoplay</span>
+            <span class="control-desc">Pausa vídeos e áudios automáticos</span>
+          </div>
+        </div>
+        <label class="toggle">
+          <input type="checkbox" id="blockAutoplay" />
+          <span class="slider"></span>
+        </label>
+      </div>
+
+      <div class="control-item">
+        <div class="control-info">
+          <span class="control-icon">✨</span>
+          <div>
+            <span class="control-name">Remover Animações</span>
+            <span class="control-desc">Desativa transições e efeitos</span>
+          </div>
+        </div>
+        <label class="toggle">
+          <input type="checkbox" id="removeAnimations" />
+          <span class="slider"></span>
+        </label>
+      </div>
+
+      <div class="control-item">
+        <div class="control-info">
+          <span class="control-icon">🚫</span>
+          <div>
+            <span class="control-name">Remover Popups</span>
+            <span class="control-desc">Esconde overlays e banners</span>
+          </div>
+        </div>
+        <label class="toggle">
+          <input type="checkbox" id="removePopups" />
+          <span class="slider"></span>
+        </label>
+      </div>
+
+      <div class="control-item">
+        <div class="control-info">
+          <span class="control-icon">⏰</span>
+          <div>
+            <span class="control-name">Ocultar Timers</span>
+            <span class="control-desc">Remove contagens e urgência falsa</span>
+          </div>
+        </div>
+        <label class="toggle">
+          <input type="checkbox" id="hideTimers" />
+          <span class="slider"></span>
+        </label>
+      </div>
+
+      <div class="control-item">
+        <div class="control-info">
+          <span class="control-icon">🌫️</span>
+          <div>
+            <span class="control-name">Modo Foco</span>
+            <span class="control-desc">Escurece elementos secundários</span>
+          </div>
+        </div>
+        <label class="toggle">
+          <input type="checkbox" id="focusMode" />
+          <span class="slider"></span>
+        </label>
+      </div>
+
+    </section>
+
+    <!-- Filtros visuais -->
+    <section class="visual-filters">
+      <p class="section-label">Filtros visuais</p>
+
+      <div class="slider-control">
+        <div class="slider-header">
+          <span class="control-icon">☀️</span>
+          <span class="control-name">Brilho</span>
+          <span class="slider-value" id="brightnessVal">100%</span>
+        </div>
+        <input type="range" id="brightness" min="50" max="150" value="100" class="range-input" />
+      </div>
+
+      <div class="slider-control">
+        <div class="slider-header">
+          <span class="control-icon">🎨</span>
+          <span class="control-name">Saturação</span>
+          <span class="slider-value" id="saturationVal">100%</span>
+        </div>
+        <input type="range" id="saturation" min="0" max="200" value="100" class="range-input" />
+      </div>
+
+      <div class="slider-control">
+        <div class="slider-header">
+          <span class="control-icon">🌑</span>
+          <span class="control-name">Contraste</span>
+          <span class="slider-value" id="contrastVal">100%</span>
+        </div>
+        <input type="range" id="contrast" min="50" max="150" value="100" class="range-input" />
+      </div>
+
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <span>🔒 100% local · nenhum dado coletado</span>
+    </footer>
+
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>

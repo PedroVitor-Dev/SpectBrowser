@@ -1,0 +1,4 @@
+/* Reset de base para suavizar sites */
+:root {
+  scroll-behavior: auto !important;
+}
