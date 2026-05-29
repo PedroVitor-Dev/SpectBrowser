@@ -4,9 +4,6 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>SpectBrowser</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Serif+Display&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="popup.css" />
 </head>
 <body>
@@ -16,31 +13,33 @@
     <header class="header">
       <div class="logo">
         <div class="logo-icon">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z" fill="var(--accent)"/>
-            <path d="M8 12c0-2.21 1.79-4 4-4s4 1.79 4 4-1.79 4-4 4-4-1.79-4-4z" fill="var(--bg)"/>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+            <circle cx="12" cy="12" r="9" fill="#4A90C4" opacity="0.3"/>
+            <circle cx="12" cy="12" r="5" fill="#4A90C4" opacity="0.6"/>
+            <circle cx="12" cy="12" r="2.5" fill="#4A90C4"/>
           </svg>
         </div>
-        <div class="logo-text">
+        <div>
           <span class="logo-name">SpectBrowser</span>
-          <span class="logo-tagline">Navegue com calma</span>
+          <span class="logo-tagline">navegue com calma</span>
         </div>
       </div>
-      <div class="master-toggle-wrap">
-        <label class="master-toggle" title="Ativar/desativar tudo">
+      <div class="master-wrap">
+        <span class="master-label">ativo</span>
+        <label class="toggle">
           <input type="checkbox" id="masterToggle" />
-          <span class="master-slider"></span>
+          <span class="slider"></span>
         </label>
       </div>
     </header>
 
     <!-- Modos rápidos -->
     <section class="quick-modes">
-      <p class="section-label">Modos rápidos</p>
+      <p class="section-label">modos rápidos</p>
       <div class="modes-grid">
         <button class="mode-btn" data-mode="neuro">
           <span class="mode-icon">🧠</span>
-          <span class="mode-name">NeuroCalm</span>
+          <span class="mode-name">Neuro Calm</span>
         </button>
         <button class="mode-btn" data-mode="focus">
           <span class="mode-icon">🎯</span>
@@ -57,13 +56,13 @@
       </div>
     </section>
 
-    <!-- Controles individuais -->
+    <!-- Controles -->
     <section class="controls">
-      <p class="section-label">Controles</p>
+      <p class="section-label">controles</p>
 
       <div class="control-item">
         <div class="control-info">
-          <span class="control-icon">🔇</span>
+          <div class="control-icon-wrap">🔇</div>
           <div>
             <span class="control-name">Bloquear Autoplay</span>
             <span class="control-desc">Pausa vídeos e áudios automáticos</span>
@@ -77,7 +76,7 @@
 
       <div class="control-item">
         <div class="control-info">
-          <span class="control-icon">✨</span>
+          <div class="control-icon-wrap">✨</div>
           <div>
             <span class="control-name">Remover Animações</span>
             <span class="control-desc">Desativa transições e efeitos</span>
@@ -91,7 +90,7 @@
 
       <div class="control-item">
         <div class="control-info">
-          <span class="control-icon">🚫</span>
+          <div class="control-icon-wrap">🚫</div>
           <div>
             <span class="control-name">Remover Popups</span>
             <span class="control-desc">Esconde overlays e banners</span>
@@ -105,10 +104,10 @@
 
       <div class="control-item">
         <div class="control-info">
-          <span class="control-icon">⏰</span>
+          <div class="control-icon-wrap">⏰</div>
           <div>
             <span class="control-name">Ocultar Timers</span>
-            <span class="control-desc">Remove contagens e urgência falsa</span>
+            <span class="control-desc">Remove urgência e contagens</span>
           </div>
         </div>
         <label class="toggle">
@@ -119,7 +118,7 @@
 
       <div class="control-item">
         <div class="control-info">
-          <span class="control-icon">🌫️</span>
+          <div class="control-icon-wrap">🌫️</div>
           <div>
             <span class="control-name">Modo Foco</span>
             <span class="control-desc">Escurece elementos secundários</span>
@@ -135,40 +134,41 @@
 
     <!-- Filtros visuais -->
     <section class="visual-filters">
-      <p class="section-label">Filtros visuais</p>
+      <p class="section-label">filtros visuais</p>
 
       <div class="slider-control">
         <div class="slider-header">
-          <span class="control-icon">☀️</span>
-          <span class="control-name">Brilho</span>
+          <span class="slider-icon">☀️</span>
+          <span class="slider-name">Brilho</span>
           <span class="slider-value" id="brightnessVal">100%</span>
         </div>
-        <input type="range" id="brightness" min="50" max="150" value="100" class="range-input" />
+        <input type="range" class="range-input" id="brightness" min="50" max="150" value="100" />
       </div>
 
       <div class="slider-control">
         <div class="slider-header">
-          <span class="control-icon">🎨</span>
-          <span class="control-name">Saturação</span>
+          <span class="slider-icon">🎨</span>
+          <span class="slider-name">Saturação</span>
           <span class="slider-value" id="saturationVal">100%</span>
         </div>
-        <input type="range" id="saturation" min="0" max="200" value="100" class="range-input" />
+        <input type="range" class="range-input" id="saturation" min="0" max="200" value="100" />
       </div>
 
       <div class="slider-control">
         <div class="slider-header">
-          <span class="control-icon">🌑</span>
-          <span class="control-name">Contraste</span>
+          <span class="slider-icon">🌑</span>
+          <span class="slider-name">Contraste</span>
           <span class="slider-value" id="contrastVal">100%</span>
         </div>
-        <input type="range" id="contrast" min="50" max="150" value="100" class="range-input" />
+        <input type="range" class="range-input" id="contrast" min="50" max="150" value="100" />
       </div>
 
     </section>
 
     <!-- Footer -->
     <footer class="footer">
-      <span>🔒 100% local · nenhum dado coletado</span>
+      <div class="footer-dot"></div>
+      <span>100% local · nenhum dado coletado</span>
     </footer>
 
   </div>
